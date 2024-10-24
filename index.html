@@ -163,7 +163,7 @@
             // Determine the impression
             let impression;
             if (Math.abs(deviationFromMean) > 2) {
-                impression = deviationFromMean > 2 ? "Advanced" : "Delayed";
+                impression = deviationFromMean > 2 ? "Advanced bone age." : "Delayed bone age.";
             } else {
                 impression = "Bone age is within two standard deviations of the chronological age.";
             }
@@ -175,7 +175,7 @@ In the Brush foundation study of normal patients, a patient of this chronologica
 Therefore this patient is ${Math.abs(deviationFromMean).toFixed(2)} standard deviations ${deviationDescription} the mean.
 
 Impression: 
-1. ${impression}
+${impression}
             `;
 
             // Generate the calculation breakdown
