@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bone Age Report Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .calculations {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e6f7ff;
+            border: 1px solid #99ccff;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Bone Age Report Generator</h1>
+
+        <label for="gender">Gender:</label>
+        <select id="gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+
+        <label for="birthdate">Patient's Birthdate:</label>
+        <input type="date" id="birthdate">
+
+        <label for="bone-age">Bone Age (in months):</label>
+        <input type="number" id="bone-age" placeholder="Enter bone age in months" min="0">
+
+        <button onclick="generateReport()">Generate Report</button>
+
+        <div class="output" id="output"></div>
+        <div class="calculations" id="calculations"></div>
+    </div>
+
+    <script>
+        // Data for boys
+        const boysData = {
+            3: [3.01, 0.69], 6: [6.09, 1.13], 9: [9.56, 1.43], 12: [12.74, 1.97], 18: [19.36, 3.52],
+            24: [25.97, 3.92], 30: [32.40, 4.52], 36: [38.21, 5.40], 42: [43.89, 5.48], 48: [49.04, 6.66],
+            54: [56.09, 8.36], 60: [62.43, 8.79], 72: [75.46, 9.17], 84: [88.20, 8.91], 96: [101.38, 9.10],
+            108: [113.90, 9.00], 120: [125.68, 9.79], 132: [137.32, 10.09], 144: [148.82, 10.38], 
+            156: [158.39, 10.44], 168: [170.02, 10.72], 180: [182.72, 11.32], 192: [195.32, 12.86], 
+            204: [206.21, 13.05]
+        };
+
+        // Data for girls
+        const girlsData = {
+            3: [3.02, 0.72], 6: [6.04, 1.16], 9: [9.05, 1.36], 12: [12.04, 1.77], 18: [18.22, 3.49],
+            24: [24.16, 4.64], 30: [30.96, 5.67], 36: [36.63, 5.93], 42: [43.50, 7.48], 48: [50.14, 8.08],
+            54: [60.06, 10.73], 60: [66.21, 11.65], 72: [78.50, 10.23], 84: [89.30, 9.64], 96: [100.66, 10.23],
+            108: [113.86, 10.74], 120: [125.66, 11.73], 132: [137.87, 11.94], 144: [149.62, 10.24], 
+            156: [162.28, 10.67], 168: [174.25, 11.30], 180: [183.62, 9.23], 192: [189.44, 7.31]
+        };
+
+        // Function to calculate the patient's age in months
+        function calculateAgeInMonths(birthdate) {
+            const today = new Date();
+            const birth = new Date(birthdate);
+
+            let years = today.getFullYear() - birth.getFullYear();
+            let months = today.getMonth() - birth.getMonth();
+            let days = today.getDate() - birth.getDate();
+
+            // Adjust if birthdate hasn't occurred yet this year
+            if (months < 0 || (months === 0 && days < 0)) {
+                years--;
+                months += 12;
+            }
+
+            // Calculate total months
+            let totalMonths = years * 12 + months;
+
+            // Round up if the days are 16 or more
+            if (days >= 16) {
+                totalMonths++;
+            }
+
+            return totalMonths;
+        }
+
+        function generateReport() {
+            const gender = document.getElementById('gender').value;
+            const birthdate = document.getElementById('birthdate').value;
+            const boneAge = parseFloat(document.getElementById('bone-age').value);
+
+            if (!birthdate || isNaN(boneAge) || boneAge < 0) {
+                alert("Please enter valid birthdate and bone age.");
+                return;
+            }
+
+            const chronologicalAge = calculateAgeInMonths(birthdate);
+
+            // Select the correct data based on gender
+            let data;
+            if (gender === 'male') {
+                data = boysData;
+            } else {
+                data = girlsData;
+            }
+
+            // Find the base year (closest lower bound year) and remaining months
+            const baseYear = Math.floor(chronologicalAge / 12) * 12;
+            const remainingMonths = chronologicalAge % 12;
+
+            const [meanSkeletalAgeAtBase, stdDev] = data[baseYear];
+
+            // Calculate the adjusted mean skeletal age by simply adding the remaining months
+            const meanSkeletalAge = meanSkeletalAgeAtBase + remainingMonths;
+
+            // Calculate the difference and standard deviation
+            const deviationFromMean = (boneAge - meanSkeletalAge) / stdDev;
+            const deviationDescription = deviationFromMean > 0 ? "above" : "below";
+
+            // Determine the impression
+            let impression;
+            if (Math.abs(deviationFromMean) > 2) {
+                impression = deviationFromMean > 2 ? "Advanced" : "Delayed";
+            } else {
+                impression = "Bone age is within two standard deviations of the chronological age.";
+            }
+
+            // Generate the report
+            const report = `
+Utilizing the atlas of Greulich and Pyle, PA view of left hand and wrist reveals a bone age of ${boneAge} months while the chronological age of the patient is ${chronologicalAge} months. 
+In the Brush foundation study of normal patients, a patient of this chronological age had a mean bone age of ${meanSkeletalAge.toFixed(2)} months with one standard deviation of ${stdDev} months. 
+Therefore this patient is ${Math.abs(deviationFromMean).toFixed(2)} standard deviations ${deviationDescription} the mean.
+
+Impression: 
+1. ${impression}
+            `;
+
+            // Generate the calculation breakdown
+            const calculationBreakdown = `
+**Chronological Age Calculations**:
+- Birthdate: ${new Date(birthdate).toLocaleDateString()}
+- Chronological Age (months): ${chronologicalAge}
+
+**Bone Age Calculations**:
+- Base Year: ${baseYear / 12} years
+- Remaining Months Over Year Mark: ${remainingMonths}
+- Mean Skeletal Age at Base Year (${baseYear / 12} years): ${meanSkeletalAgeAtBase} months
+- Adjusted Mean Skeletal Age (mean + remaining months): ${meanSkeletalAge.toFixed(2)} months
+
+**Deviation Calculations**:
+- Patient's Bone Age: ${boneAge} months
+- Standard Deviation: ${stdDev} months
+- Difference Between Bone Age and Adjusted Mean: ${(boneAge - meanSkeletalAge).toFixed(2)} months
+- Number of Standard Deviations From Mean: ${Math.abs(deviationFromMean).toFixed(2)} ${deviationDescription} the mean
+            `;
+
+            // Display the report and calculation breakdown
+            document.getElementById('output').textContent = report;
+            document.getElementById('calculations').textContent = calculationBreakdown;
+        }
+    </script>
+
+</body>
+</html>
