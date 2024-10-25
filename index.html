@@ -2,60 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bone Age Report Generator</title>
     <style>
+        /* Your existing styles */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-        }
-        h1 {
-            text-align: center;
-        }
-        label {
-            display: block;
-            margin: 15px 0 5px;
-        }
-        select, input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .output {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            white-space: pre-wrap;
-        }
-        .calculations {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #e6f7ff;
-            border: 1px solid #99ccff;
-            border-radius: 5px;
-            white-space: pre-wrap;
-        }
+        /* ... rest of your styles ... */
     </style>
 </head>
 <body>
@@ -83,7 +37,7 @@
     </div>
 
     <script>
-        // Data for boys
+        // Data for boys and girls (unchanged)
         const boysData = {
             3: [3.01, 0.69], 6: [6.09, 1.13], 9: [9.56, 1.43], 12: [12.74, 1.97], 18: [19.36, 3.52],
             24: [25.97, 3.92], 30: [32.40, 4.52], 36: [38.21, 5.40], 42: [43.89, 5.48], 48: [49.04, 6.66],
@@ -93,7 +47,6 @@
             204: [206.21, 13.05]
         };
 
-        // Data for girls
         const girlsData = {
             3: [3.02, 0.72], 6: [6.04, 1.16], 9: [9.05, 1.36], 12: [12.04, 1.77], 18: [18.22, 3.49],
             24: [24.16, 4.64], 30: [30.96, 5.67], 36: [36.63, 5.93], 42: [43.50, 7.48], 48: [50.14, 8.08],
@@ -110,8 +63,8 @@
             const today = new Date();
             const birthParts = birthdate.split('-');
 
-            // Create a date in UTC to avoid timezone issues
-            birthDateObj = new Date(Date.UTC(birthParts[0], birthParts[1] - 1, birthParts[2]));
+            // Create a date in UTC at noon to avoid timezone issues
+            birthDateObj = new Date(Date.UTC(birthParts[0], birthParts[1] - 1, birthParts[2], 12, 0, 0));
 
             let years = today.getUTCFullYear() - birthDateObj.getUTCFullYear();
             let months = today.getUTCMonth() - birthDateObj.getUTCMonth();
