@@ -102,41 +102,45 @@
             156: [162.28, 10.67], 168: [174.25, 11.30], 180: [183.62, 9.23], 192: [189.44, 7.31]
         };
 
-// Function to calculate the patient's age in months
-function calculateAgeInMonths(birthdate) {
-    const today = new Date();
-    
-    // Manually parse the birthdate input to avoid timezone issues
-    const birthParts = birthdate.split('-'); // Split the input date string into year, month, day
-    const birth = new Date(birthParts[0], birthParts[1] - 1, birthParts[2]); // Create date from year, month, day
+        // Function to calculate the patient's age in months
+        function calculateAgeInMonths(birthdate) {
+            const today = new Date();
+            const birthParts = birthdate.split('-');
+            
+            // Create a date in UTC to avoid timezone issues
+            const birth = new Date(Date.UTC(birthParts[0], birthParts[1] - 1, birthParts[2]));
 
-    let years = today.getFullYear() - birth.getFullYear();
-    let months = today.getMonth() - birth.getMonth();
-    let days = today.getDate() - birth.getDate();
+            let years = today.getUTCFullYear() - birth.getUTCFullYear();
+            let months = today.getUTCMonth() - birth.getUTCMonth();
+            let days = today.getUTCDate() - birth.getUTCDate();
 
-    // Adjust if birthdate hasn't occurred yet this year
-    if (months < 0 || (months === 0 && days < 0)) {
-        years--;
-        months += 12;
-    }
+            // Adjust if birthdate hasn't occurred yet this year
+            if (months < 0 || (months === 0 && days < 0)) {
+                years--;
+                months += 12;
+            }
 
-    // Calculate total months
-    let totalMonths = years * 12 + months;
+            // Calculate total months
+            let totalMonths = years * 12 + months;
 
-    // Round up if the days are 16 or more
-    if (days >= 16) {
-        totalMonths++;
-    }
+            // Round up if the days are 16 or more
+            if (days >= 16) {
+                totalMonths++;
+            }
 
-    return totalMonths;
-}
-
-        
+            return totalMonths;
+        }
 
         function generateReport() {
             const gender = document.getElementById('gender').value;
             const birthdate = document.getElementById('birthdate').value;
             const boneAge = parseFloat(document.getElementById('bone-age').value);
+
+            // Ensure a gender is selected
+            if (!gender) {
+                alert("Please select a gender.");
+                return;
+            }
 
             if (!birthdate || isNaN(boneAge) || boneAge < 0) {
                 alert("Please enter valid birthdate and bone age.");
