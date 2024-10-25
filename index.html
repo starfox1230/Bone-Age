@@ -88,8 +88,8 @@
             3: [3.01, 0.69], 6: [6.09, 1.13], 9: [9.56, 1.43], 12: [12.74, 1.97], 18: [19.36, 3.52],
             24: [25.97, 3.92], 30: [32.40, 4.52], 36: [38.21, 5.40], 42: [43.89, 5.48], 48: [49.04, 6.66],
             54: [56.09, 8.36], 60: [62.43, 8.79], 72: [75.46, 9.17], 84: [88.20, 8.91], 96: [101.38, 9.10],
-            108: [113.90, 9.00], 120: [125.68, 9.79], 132: [137.32, 10.09], 144: [148.82, 10.38], 
-            156: [158.39, 10.44], 168: [170.02, 10.72], 180: [182.72, 11.32], 192: [195.32, 12.86], 
+            108: [113.90, 9.00], 120: [125.68, 9.79], 132: [137.32, 10.09], 144: [148.82, 10.38],
+            156: [158.39, 10.44], 168: [170.02, 10.72], 180: [182.72, 11.32], 192: [195.32, 12.86],
             204: [206.21, 13.05]
         };
 
@@ -98,21 +98,24 @@
             3: [3.02, 0.72], 6: [6.04, 1.16], 9: [9.05, 1.36], 12: [12.04, 1.77], 18: [18.22, 3.49],
             24: [24.16, 4.64], 30: [30.96, 5.67], 36: [36.63, 5.93], 42: [43.50, 7.48], 48: [50.14, 8.08],
             54: [60.06, 10.73], 60: [66.21, 11.65], 72: [78.50, 10.23], 84: [89.30, 9.64], 96: [100.66, 10.23],
-            108: [113.86, 10.74], 120: [125.66, 11.73], 132: [137.87, 11.94], 144: [149.62, 10.24], 
+            108: [113.86, 10.74], 120: [125.66, 11.73], 132: [137.87, 11.94], 144: [149.62, 10.24],
             156: [162.28, 10.67], 168: [174.25, 11.30], 180: [183.62, 9.23], 192: [189.44, 7.31]
         };
+
+        // Declare a variable to store the birth date object
+        let birthDateObj;
 
         // Function to calculate the patient's age in months
         function calculateAgeInMonths(birthdate) {
             const today = new Date();
             const birthParts = birthdate.split('-');
-            
-            // Create a date in UTC to avoid timezone issues
-            const birth = new Date(Date.UTC(birthParts[0], birthParts[1] - 1, birthParts[2]));
 
-            let years = today.getUTCFullYear() - birth.getUTCFullYear();
-            let months = today.getUTCMonth() - birth.getUTCMonth();
-            let days = today.getUTCDate() - birth.getUTCDate();
+            // Create a date in UTC to avoid timezone issues
+            birthDateObj = new Date(Date.UTC(birthParts[0], birthParts[1] - 1, birthParts[2]));
+
+            let years = today.getUTCFullYear() - birthDateObj.getUTCFullYear();
+            let months = today.getUTCMonth() - birthDateObj.getUTCMonth();
+            let days = today.getUTCDate() - birthDateObj.getUTCDate();
 
             // Adjust if birthdate hasn't occurred yet this year
             if (months < 0 || (months === 0 && days < 0)) {
@@ -178,20 +181,23 @@
                 impression = "Bone age is within two standard deviations of the chronological age.";
             }
 
+            // Use the stored birthDateObj for display
+            const birthDateString = birthDateObj.toLocaleDateString();
+
             // Generate the report
             const report = `
-Utilizing the atlas of Greulich and Pyle, PA view of left hand and wrist reveals a bone age of ${boneAge} months while the chronological age of the patient is ${chronologicalAge} months. 
-In the Brush foundation study of normal patients, a patient of this chronological age had a mean bone age of ${meanSkeletalAge.toFixed(2)} months with one standard deviation of ${stdDev} months. 
+Utilizing the atlas of Greulich and Pyle, PA view of left hand and wrist reveals a bone age of ${boneAge} months while the chronological age of the patient is ${chronologicalAge} months.
+In the Brush foundation study of normal patients, a patient of this chronological age had a mean bone age of ${meanSkeletalAge.toFixed(2)} months with one standard deviation of ${stdDev} months.
 Therefore this patient is ${Math.abs(deviationFromMean).toFixed(2)} standard deviations ${deviationDescription} the mean.
 
-Impression: 
+Impression:
 ${impression}
             `;
 
             // Generate the calculation breakdown
             const calculationBreakdown = `
 **Chronological Age Calculations**:
-- Birthdate: ${new Date(birthdate).toLocaleDateString()}
+- Birthdate: ${birthDateString}
 - Chronological Age (months): ${chronologicalAge}
 
 **Bone Age Calculations**:
