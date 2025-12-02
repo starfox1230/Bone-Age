@@ -37,7 +37,7 @@
             border-radius: 5px;
         }
         button {
-            width: 100%;
+            width: auto;
             padding: 10px;
             background-color: #bb86fc;
             color: white;
@@ -48,6 +48,10 @@
         }
         button:hover {
             background-color: #9f6ddf;
+        }
+        .primary-button {
+            width: 100%;
+            display: block;
         }
         .output, .calculations {
             margin-top: 20px;
@@ -111,7 +115,6 @@
             margin-bottom: 8px;
         }
         .copy-report-btn {
-            width: auto;
             padding: 8px 12px;
             background-color: #03dac5;
             color: #121212;
@@ -225,7 +228,7 @@
             </div>
         </div>
 
-        <button onclick="generateReport()">Generate Report</button>
+        <button class="primary-button" onclick="generateReport()">Generate Report</button>
 
         <div class="output" id="output"></div>
         <div class="calculations" id="calculations"></div>
