@@ -68,6 +68,14 @@
             border: 1px solid #444;
             border-radius: 5px;
         }
+        .copy-fields summary {
+            cursor: pointer;
+            color: #bb86fc;
+            font-weight: 600;
+        }
+        .copy-fields[open] {
+            border-color: #bb86fc;
+        }
         .copy-row {
             display: flex;
             align-items: center;
@@ -96,6 +104,40 @@
         .copy-btn:hover {
             background-color: #00bfa5;
         }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .copy-report-btn {
+            width: auto;
+            padding: 8px 12px;
+            background-color: #03dac5;
+            color: #121212;
+            font-weight: 600;
+        }
+        .copy-report-btn:hover {
+            background-color: #00bfa5;
+        }
+        .copy-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            margin: 0 4px;
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+        .copy-chip:hover {
+            border-color: #bb86fc;
+            background-color: #3a3a3a;
+        }
     </style>
 </head>
 <body>
@@ -120,7 +162,10 @@
 
         <div class="output" id="output"></div>
         <div class="calculations" id="calculations"></div>
-        <div class="copy-fields" id="copy-fields"></div>
+        <details class="copy-fields" id="copy-fields">
+            <summary>Tap any value to copy it for the report template</summary>
+            <div id="copy-fields-content"></div>
+        </details>
     </div>
 
     <script>
@@ -177,12 +222,23 @@
 
         function copyToClipboard(text, button) {
             navigator.clipboard.writeText(text).then(() => {
+                if (!button) return;
                 const originalText = button.textContent;
                 button.textContent = "Copied!";
                 setTimeout(() => {
                     button.textContent = originalText;
                 }, 1200);
             });
+        }
+
+        function createCopyChip(displayText, copyValue) {
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "copy-chip";
+            chip.textContent = displayText;
+            chip.dataset.copy = copyValue;
+            chip.title = "Click to copy this value";
+            return chip;
         }
 
         function createCopyRow(label, value) {
@@ -214,12 +270,12 @@
         }
 
         function updateCopyFields(fields) {
-            const copyFieldsContainer = document.getElementById("copy-fields");
-            copyFieldsContainer.innerHTML = "<strong>Tap any value to copy it for the report template:</strong>";
+            const copyFieldsContent = document.getElementById("copy-fields-content");
+            copyFieldsContent.innerHTML = "";
 
             fields.forEach(({ label, value }) => {
                 const row = createCopyRow(label, value);
-                copyFieldsContainer.appendChild(row);
+                copyFieldsContent.appendChild(row);
             });
         }
 
@@ -275,15 +331,62 @@
             // Use the stored birthDateObj for display
             const birthDateString = birthDateObj.toLocaleDateString();
 
-            // Generate the report
-            const report = `
-Utilizing the atlas of Greulich and Pyle, PA view of left hand and wrist reveals a bone age of ${boneAge} months while the chronological age of the patient is ${chronologicalAge} months.
-In the Brush foundation study of normal patients, a patient of this chronological age had a mean bone age of ${meanSkeletalAgeRounded} months with one standard deviation of ${stdDev} months.
-Therefore this patient is ${deviationMagnitude} standard deviations ${deviationDescription} the mean.
+            // Prepare copy chips for the report values
+            const boneAgeChip = createCopyChip(`${boneAge} months`, `${boneAge}`);
+            const chronologicalAgeChip = createCopyChip(`${chronologicalAge} months`, `${chronologicalAge}`);
+            const meanSkeletalAgeChip = createCopyChip(`${meanSkeletalAgeRounded} months`, `${meanSkeletalAgeRounded}`);
+            const stdDevChip = createCopyChip(`${stdDev} months`, `${stdDev}`);
+            const deviationChip = createCopyChip(`${deviationMagnitude} standard deviations`, `${deviationMagnitude}`);
+            const directionChip = createCopyChip(`${deviationDescription} the mean`, `${deviationDescription}`);
+            const impressionChip = createCopyChip(impression, impression);
 
-Impression:
-${impression}
-            `;
+            // Generate the report with interactive chips
+            const reportContainer = document.createElement("div");
+            const header = document.createElement("div");
+            header.className = "report-header";
+            header.innerHTML = "<strong>Generated Report</strong>";
+
+            const copyReportBtn = document.createElement("button");
+            copyReportBtn.type = "button";
+            copyReportBtn.className = "copy-report-btn";
+            copyReportBtn.id = "copy-report-btn";
+            copyReportBtn.textContent = "Copy report";
+            header.appendChild(copyReportBtn);
+
+            const firstParagraph = document.createElement("p");
+            firstParagraph.append("Utilizing the atlas of Greulich and Pyle, PA view of left hand and wrist reveals a bone age of ");
+            firstParagraph.appendChild(boneAgeChip);
+            firstParagraph.append(" while the chronological age of the patient is ");
+            firstParagraph.appendChild(chronologicalAgeChip);
+            firstParagraph.append(".");
+
+            const secondParagraph = document.createElement("p");
+            secondParagraph.append("In the Brush foundation study of normal patients, a patient of this chronological age had a mean bone age of ");
+            secondParagraph.appendChild(meanSkeletalAgeChip);
+            secondParagraph.append(" with one standard deviation of ");
+            secondParagraph.appendChild(stdDevChip);
+            secondParagraph.append(".");
+
+            const thirdParagraph = document.createElement("p");
+            thirdParagraph.append("Therefore this patient is ");
+            thirdParagraph.appendChild(deviationChip);
+            thirdParagraph.append(" ");
+            thirdParagraph.appendChild(directionChip);
+            thirdParagraph.append(" the mean.");
+
+            const impressionParagraph = document.createElement("p");
+            const impressionLabel = document.createElement("strong");
+            impressionLabel.textContent = "Impression: ";
+            impressionParagraph.appendChild(impressionLabel);
+            impressionParagraph.appendChild(impressionChip);
+
+            reportContainer.appendChild(header);
+            reportContainer.appendChild(firstParagraph);
+            reportContainer.appendChild(secondParagraph);
+            reportContainer.appendChild(thirdParagraph);
+            reportContainer.appendChild(impressionParagraph);
+
+            const reportText = Array.from(reportContainer.querySelectorAll('p')).map((p) => p.innerText).join('\n');
 
             // Generate the calculation breakdown
             const calculationBreakdown = `
@@ -305,8 +408,20 @@ ${impression}
             `;
 
             // Display the report and calculation breakdown
-            document.getElementById('output').textContent = report;
+            const outputContainer = document.getElementById('output');
+            outputContainer.innerHTML = "";
+            outputContainer.appendChild(reportContainer);
             document.getElementById('calculations').textContent = calculationBreakdown;
+
+            // Attach copy functionality to chips
+            outputContainer.querySelectorAll('.copy-chip').forEach((chip) => {
+                chip.addEventListener('click', () => copyToClipboard(chip.dataset.copy, chip));
+            });
+
+            // Copy entire report button
+            copyReportBtn.addEventListener('click', () => {
+                copyToClipboard(reportText, copyReportBtn);
+            });
 
             updateCopyFields([
                 { label: "Bone age (months)", value: `${boneAge}` },
