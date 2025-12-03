@@ -295,9 +295,14 @@
             navigator.clipboard.writeText(text).then(() => {
                 if (!button) return;
                 const originalText = button.textContent;
+                const originalWidth = button.getBoundingClientRect().width;
+
+                button.style.width = `${originalWidth}px`;
                 button.textContent = "Copied!";
+
                 setTimeout(() => {
                     button.textContent = originalText;
+                    button.style.width = "";
                 }, 1200);
             });
         }
@@ -389,16 +394,7 @@
         }
 
         function formatBoneAgeDisplay(boneAge) {
-            if (boneAgeInputMode === 'months') {
-                return `${boneAge} months`;
-            }
-
-            const years = Math.floor(boneAge / 12);
-            const months = Math.round(boneAge % 12);
-            const parts = [];
-            if (years) parts.push(`${years} year${years !== 1 ? 's' : ''}`);
-            if (months) parts.push(`${months} month${months !== 1 ? 's' : ''}`);
-            return parts.join(' ') || '0 months';
+            return `${boneAge} months`;
         }
 
         function generateReport() {
