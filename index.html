@@ -144,6 +144,14 @@
             background-color: #2c2c2c;
             color: #f5f5f5;
         }
+        .copy-chip-wrapper {
+            display: inline-flex;
+            align-items: center;
+        }
+        .copy-suffix {
+            margin-left: 4px;
+            color: #b0bec5;
+        }
         .field-header {
             display: flex;
             align-items: center;
@@ -307,14 +315,27 @@
             });
         }
 
-        function createCopyChip(displayText, copyValue) {
+        function createCopyChip(copyValue, suffixText = "", displayText = copyValue) {
+            const wrapper = document.createElement("span");
+            wrapper.className = "copy-chip-wrapper";
+
             const chip = document.createElement("button");
             chip.type = "button";
             chip.className = "copy-chip";
             chip.textContent = displayText;
             chip.dataset.copy = copyValue;
             chip.title = "Click to copy this value";
-            return chip;
+
+            wrapper.appendChild(chip);
+
+            if (suffixText) {
+                const suffix = document.createElement("span");
+                suffix.className = "copy-suffix";
+                suffix.textContent = suffixText;
+                wrapper.appendChild(suffix);
+            }
+
+            return wrapper;
         }
 
         function createCopyRow(label, value) {
@@ -393,10 +414,6 @@
             return years * 12 + months;
         }
 
-        function formatBoneAgeDisplay(boneAge) {
-            return `${boneAge} months`;
-        }
-
         function generateReport() {
             const gender = document.getElementById('gender').value;
             const birthdate = document.getElementById('birthdate').value;
@@ -414,7 +431,6 @@
             }
 
             const chronologicalAge = calculateAgeInMonths(birthdate);
-            const boneAgeDisplay = formatBoneAgeDisplay(boneAge);
 
             // Select the correct data based on gender
             let data;
@@ -451,13 +467,13 @@
             const birthDateString = birthDateObj.toLocaleDateString();
 
             // Prepare copy chips for the report values
-            const boneAgeChip = createCopyChip(boneAgeDisplay, `${boneAge}`);
-            const chronologicalAgeChip = createCopyChip(`${chronologicalAge} months`, `${chronologicalAge}`);
-            const meanSkeletalAgeChip = createCopyChip(`${meanSkeletalAgeRounded} months`, `${meanSkeletalAgeRounded}`);
-            const stdDevChip = createCopyChip(`${stdDev} months`, `${stdDev}`);
-            const deviationChip = createCopyChip(`${deviationMagnitude} standard deviations`, `${deviationMagnitude}`);
-            const directionChip = createCopyChip(`${deviationDescription} the mean`, `${deviationDescription}`);
-            const impressionChip = createCopyChip(impression, impression);
+            const boneAgeChip = createCopyChip(`${boneAge}`, " months");
+            const chronologicalAgeChip = createCopyChip(`${chronologicalAge}`, " months");
+            const meanSkeletalAgeChip = createCopyChip(`${meanSkeletalAgeRounded}`, " months");
+            const stdDevChip = createCopyChip(`${stdDev}`, " months");
+            const deviationChip = createCopyChip(`${deviationMagnitude}`, " standard deviations");
+            const directionChip = createCopyChip(`${deviationDescription}`, " the mean");
+            const impressionChip = createCopyChip(impression, "", impression);
 
             // Generate the report with interactive chips
             const reportContainer = document.createElement("div");
